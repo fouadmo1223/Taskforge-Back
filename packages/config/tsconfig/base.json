@@ -1,0 +1,13 @@
+{
+  "$comment": "Re-exported for apps that prefer '@flowdesk/config/tsconfig/base.json'. Mirrors the repo-root tsconfig.base.json.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@flowdesk/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./eslint/base": "./eslint/base.js",
+    "./eslint/react": "./eslint/react.js",
+    "./tsconfig/base.json": "./tsconfig/base.json"
+  },
+  "dependencies": {
+    "@eslint/js": "9.17.0",
+    "eslint-config-prettier": "9.1.0",
+    "typescript-eslint": "8.19.0",
+    "globals": "15.14.0"
+  }
+}

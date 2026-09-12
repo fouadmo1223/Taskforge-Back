@@ -1,0 +1,31 @@
+{
+  "name": "taskforge-back",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "build:deps": "pnpm --filter @flowdesk/types build && pnpm --filter @flowdesk/utils build",
+    "dev": "pnpm build:deps && pnpm --filter @flowdesk/api dev",
+    "build": "pnpm build:deps && pnpm --filter @flowdesk/api build",
+    "start": "pnpm --filter @flowdesk/api start",
+    "lint": "pnpm --filter @flowdesk/api lint",
+    "test": "pnpm build:deps && pnpm --filter @flowdesk/api test",
+    "typecheck": "pnpm build:deps && pnpm --filter @flowdesk/api typecheck",
+    "seed": "pnpm --filter @flowdesk/api seed",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down"
+  },
+  "devDependencies": {
+    "prettier": "3.4.2",
+    "typescript": "5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@swc/core", "argon2", "esbuild", "mongodb-memory-server", "msgpackr-extract"],
+    "overrides": {
+      "typescript": "5.7.3"
+    }
+  }
+}

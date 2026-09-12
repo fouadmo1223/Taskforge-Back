@@ -1,0 +1,33 @@
+node_modules/
+dist/
+build/
+coverage/
+.turbo/
+.next/
+out/
+
+# env
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor / os
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# test / cache
+.vitest/
+*.tsbuildinfo
+
+# local dev tools (portable redis, etc.)
+.tools/
