@@ -175,6 +175,7 @@ export class AuthController {
       globalPrefix: this.config.get('http.globalPrefix', { infer: true }),
       cookieDomain: this.config.get('jwt.cookieDomain', { infer: true }),
       cookieSecure: this.config.get('jwt.cookieSecure', { infer: true }),
+      cookieSameSite: this.config.get('jwt.cookieSameSite', { infer: true }),
     };
   }
 }

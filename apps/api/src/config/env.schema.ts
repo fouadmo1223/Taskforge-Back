@@ -31,6 +31,10 @@ export const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((v) => v === 'true'),
+  // 'none' is required when the web app and API are on different sites (e.g. two
+  // separate Vercel deployments) so the browser will still send the refresh
+  // cookie cross-site; it requires AUTH_COOKIE_SECURE=true.
+  AUTH_COOKIE_SAMESITE: z.enum(['lax', 'none', 'strict']).default('lax'),
 
   MAIL_TRANSPORT: z.enum(['console', 'smtp']).default('console'),
   MAIL_FROM: z.string().default('FlowDesk <no-reply@flowdesk.local>'),
@@ -59,6 +63,9 @@ export function validateEnv(raw: Record<string, unknown>): Env {
   }
   if (parsed.data.MAIL_TRANSPORT === 'smtp' && !parsed.data.SMTP_HOST) {
     throw new Error('MAIL_TRANSPORT=smtp requires SMTP_HOST (and usually SMTP_PORT/USER/PASS)');
+  }
+  if (parsed.data.AUTH_COOKIE_SAMESITE === 'none' && !parsed.data.AUTH_COOKIE_SECURE) {
+    throw new Error('AUTH_COOKIE_SAMESITE=none requires AUTH_COOKIE_SECURE=true');
   }
   return parsed.data;
 }

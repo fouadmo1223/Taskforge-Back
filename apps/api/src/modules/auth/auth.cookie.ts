@@ -6,13 +6,14 @@ export interface RefreshCookieConfig {
   globalPrefix: string;
   cookieDomain: string;
   cookieSecure: boolean;
+  cookieSameSite: 'lax' | 'none' | 'strict';
 }
 
 function options(config: RefreshCookieConfig, maxAgeMs?: number): CookieOptions {
   return {
     httpOnly: true,
     secure: config.cookieSecure,
-    sameSite: 'lax',
+    sameSite: config.cookieSameSite,
     domain: config.cookieDomain || undefined,
     path: `/${config.globalPrefix}/auth`,
     ...(maxAgeMs ? { maxAge: maxAgeMs } : {}),

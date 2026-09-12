@@ -30,6 +30,7 @@ export function configuration(): AppConfig {
       refreshTtl: env.JWT_REFRESH_TTL,
       cookieDomain: env.AUTH_COOKIE_DOMAIN,
       cookieSecure: env.AUTH_COOKIE_SECURE,
+      cookieSameSite: env.AUTH_COOKIE_SAMESITE,
     },
     mail: {
       transport: env.MAIL_TRANSPORT,
@@ -72,6 +73,7 @@ export interface AppConfig {
     refreshTtl: number;
     cookieDomain: string;
     cookieSecure: boolean;
+    cookieSameSite: 'lax' | 'none' | 'strict';
   };
   mail: {
     transport: 'console' | 'smtp';
