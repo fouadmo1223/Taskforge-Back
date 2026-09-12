@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+  "framework": null,
   "buildCommand": "pnpm --filter @flowdesk/types build && pnpm --filter @flowdesk/utils build && pnpm --filter @flowdesk/api build",
   "functions": {
     "api/index.ts": {
