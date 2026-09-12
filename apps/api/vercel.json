@@ -4,7 +4,7 @@
   "framework": null,
   "buildCommand": "pnpm --filter @flowdesk/types build && pnpm --filter @flowdesk/utils build && pnpm --filter @flowdesk/api build",
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "maxDuration": 30,
       "memory": 1024
     }
