@@ -31,9 +31,15 @@ export class MailService {
     return this.transporter;
   }
 
-  /** Fire-and-forget: renders + sends without awaiting; errors are logged only. */
-  send(message: MailTemplate): void {
-    void this.deliver(message).catch((err: unknown) =>
+  /**
+   * Renders + sends. Awaited by every call site — on a serverless deployment
+   * (Vercel) the function's container freezes the instant the HTTP response
+   * goes out, killing any unfinished background work, so delivery cannot be
+   * truly fire-and-forget here. A failure is logged and swallowed rather than
+   * thrown, so a broken mail provider never turns into a 500 for the caller.
+   */
+  async send(message: MailTemplate): Promise<void> {
+    await this.deliver(message).catch((err: unknown) =>
       this.logger.error(`mail "${message.template}" to ${message.to} failed: ${String(err)}`),
     );
   }
