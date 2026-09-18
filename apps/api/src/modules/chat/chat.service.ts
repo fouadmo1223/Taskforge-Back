@@ -236,6 +236,13 @@ export class ChatService {
     this.realtime.emitToConversation(convo.id, 'chat.message', { message: view }, userId);
 
     const others = convo.memberUserIds.map((id) => id.toString()).filter((id) => id !== userId);
+    // Also fan out to each member's own channel: the conversation channel
+    // alone only reaches a client actively viewing this exact conversation
+    // right now (it joins/leaves that channel with the thread's mount
+    // lifecycle) — without this, closing the chat panel, or just looking at
+    // a different conversation, silently stops delivery entirely, so the
+    // unread badge, browser notification, and live message never arrive.
+    this.realtime.emitToUsers(others, 'chat.message', { message: view }, userId);
     await this.notifications.notify(others, {
       workspaceId,
       type: 'chat.message',
@@ -328,6 +335,7 @@ export class ChatService {
       out.push(view);
       this.realtime.emitToConversation(convo.id, 'chat.message', { message: view }, userId);
       const others = convo.memberUserIds.map((id) => id.toString()).filter((id) => id !== userId);
+      this.realtime.emitToUsers(others, 'chat.message', { message: view }, userId);
       await this.notifications.notify(others, {
         workspaceId,
         type: 'chat.message',
