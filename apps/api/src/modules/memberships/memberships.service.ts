@@ -216,10 +216,10 @@ export class MembershipsService {
   async acceptInvite(rawToken: string, user: { id: string; email: string }): Promise<{ workspaceId: string }> {
     const doc = await this.model.findOne({ inviteTokenHash: sha256(rawToken), status: 'invited' }).exec();
     if (!doc || !doc.inviteExpiresAt || doc.inviteExpiresAt.getTime() < Date.now()) {
-      throw ApiException.validation('This invitation is invalid or has expired.');
+      throw new ApiException('invite_invalid', 'This invitation is invalid or has expired.');
     }
     if (doc.invitedEmail && doc.invitedEmail !== user.email.toLowerCase()) {
-      throw ApiException.forbidden('This invitation was sent to a different email address.');
+      throw new ApiException('invite_email_mismatch', 'This invitation was sent to a different email address.');
     }
     const dupe = await this.model.exists({
       workspaceId: doc.workspaceId,

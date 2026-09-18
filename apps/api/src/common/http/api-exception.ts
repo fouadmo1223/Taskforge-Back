@@ -12,6 +12,8 @@ const STATUS_BY_CODE: Record<ApiErrorCode, HttpStatus> = {
   unprocessable: HttpStatus.UNPROCESSABLE_ENTITY,
   internal_error: HttpStatus.INTERNAL_SERVER_ERROR,
   service_unavailable: HttpStatus.SERVICE_UNAVAILABLE,
+  invite_invalid: HttpStatus.BAD_REQUEST,
+  invite_email_mismatch: HttpStatus.FORBIDDEN,
 };
 
 /**

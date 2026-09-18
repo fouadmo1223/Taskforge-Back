@@ -35,7 +35,9 @@ export type ApiErrorCode =
   | 'payload_too_large'
   | 'unprocessable'
   | 'internal_error'
-  | 'service_unavailable';
+  | 'service_unavailable'
+  | 'invite_invalid'
+  | 'invite_email_mismatch';
 
 /** Offset pagination result. */
 export interface OffsetPage<T> {
