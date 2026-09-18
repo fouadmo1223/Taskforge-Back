@@ -53,7 +53,19 @@ export async function createApp(): Promise<{ app: NestExpressApplication; config
     .addCookieAuth('fd_refresh')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup(`${http.globalPrefix}/docs`, app, document, { swaggerOptions: { persistAuthorization: true } });
+  // Point the UI at CDN-hosted assets instead of the local swagger-ui-dist
+  // files on disk: Vercel's serverless bundler resolves those dynamically at
+  // runtime (not via a traceable require()/import()), so they never make it
+  // into the deployed function and every asset 404s, leaving a blank page.
+  const SWAGGER_UI_VERSION = '5.32.13';
+  SwaggerModule.setup(`${http.globalPrefix}/docs`, app, document, {
+    swaggerOptions: { persistAuthorization: true },
+    customCssUrl: `https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui.min.css`,
+    customJs: [
+      `https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-bundle.min.js`,
+      `https://cdn.jsdelivr.net/npm/swagger-ui-dist@${SWAGGER_UI_VERSION}/swagger-ui-standalone-preset.min.js`,
+    ],
+  });
 
   return { app, config };
 }
