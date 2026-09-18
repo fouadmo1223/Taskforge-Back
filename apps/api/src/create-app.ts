@@ -45,17 +45,15 @@ export async function createApp(): Promise<{ app: NestExpressApplication; config
   });
   app.setGlobalPrefix(http.globalPrefix);
 
-  if (!isProd) {
-    const swaggerConfig = new DocumentBuilder()
-      .setTitle('FlowDesk API')
-      .setDescription('Work-management platform API')
-      .setVersion('0.1.0')
-      .addBearerAuth()
-      .addCookieAuth('fd_refresh')
-      .build();
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup(`${http.globalPrefix}/docs`, app, document, { swaggerOptions: { persistAuthorization: true } });
-  }
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('FlowDesk API')
+    .setDescription('Work-management platform API')
+    .setVersion('0.1.0')
+    .addBearerAuth()
+    .addCookieAuth('fd_refresh')
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup(`${http.globalPrefix}/docs`, app, document, { swaggerOptions: { persistAuthorization: true } });
 
   return { app, config };
 }
