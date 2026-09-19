@@ -10,8 +10,10 @@ export type AuditLogDocument = HydratedDocument<AuditLog>;
  */
 @Schema({ timestamps: { createdAt: true, updatedAt: false }, collection: 'audit_logs' })
 export class AuditLog {
-  @Prop({ type: Types.ObjectId, ref: 'Workspace', required: true, index: true })
-  workspaceId!: Types.ObjectId;
+  /** null for platform-wide admin actions with no single workspace in scope (e.g.
+   *  banning a user account) — everything workspace-scoped still sets this as before. */
+  @Prop({ type: Types.ObjectId, ref: 'Workspace', default: null, index: true })
+  workspaceId!: Types.ObjectId | null;
 
   @Prop({ type: Types.ObjectId, ref: 'User', default: null })
   actorUserId!: Types.ObjectId | null;

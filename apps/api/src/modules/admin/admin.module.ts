@@ -10,6 +10,7 @@ import { AdminUsersController } from './admin-users.controller.js';
 import { AdminWorkspacesController } from './admin-workspaces.controller.js';
 import { AdminProjectsController } from './admin-projects.controller.js';
 import { AdminTasksController } from './admin-tasks.controller.js';
+import { AdminActivityController } from './admin-activity.controller.js';
 import { AdminStatsService } from './admin-stats.service.js';
 import { AdminUsersService } from './admin-users.service.js';
 import { AdminWorkspacesService } from './admin-workspaces.service.js';
@@ -33,7 +34,14 @@ import { AdminTasksService } from './admin-tasks.service.js';
       { name: WorkspaceMembership.name, schema: WorkspaceMembershipSchema },
     ]),
   ],
-  controllers: [AdminStatsController, AdminUsersController, AdminWorkspacesController, AdminProjectsController, AdminTasksController],
+  controllers: [
+    AdminStatsController,
+    AdminUsersController,
+    AdminWorkspacesController,
+    AdminProjectsController,
+    AdminTasksController,
+    AdminActivityController,
+  ],
   providers: [AdminStatsService, AdminUsersService, AdminWorkspacesService, AdminProjectsService, AdminTasksService],
 })
 export class AdminModule {}

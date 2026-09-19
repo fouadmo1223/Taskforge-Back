@@ -4,7 +4,8 @@ import { Model, Types } from 'mongoose';
 import { AuditLog, type AuditLogDocument } from './schemas/audit-log.schema.js';
 
 export interface AuditEntry {
-  workspaceId: string;
+  /** null for a platform-wide admin action with no single workspace in scope */
+  workspaceId: string | null;
   actorUserId?: string | null;
   actorLabel?: string | null;
   action: string;
@@ -26,7 +27,7 @@ export class AuditService {
   record(entry: AuditEntry): void {
     this.model
       .create({
-        workspaceId: new Types.ObjectId(entry.workspaceId),
+        workspaceId: entry.workspaceId ? new Types.ObjectId(entry.workspaceId) : null,
         actorUserId: entry.actorUserId ? new Types.ObjectId(entry.actorUserId) : null,
         actorLabel: entry.actorLabel ?? null,
         action: entry.action,
@@ -47,6 +48,19 @@ export class AuditService {
     const filter: Record<string, unknown> = { workspaceId: new Types.ObjectId(workspaceId) };
     if (opts.entityType) filter.entityType = opts.entityType;
     if (opts.entityId) filter.entityId = opts.entityId;
+    if (opts.before) filter.createdAt = { $lt: opts.before };
+    return this.model
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .limit(Math.min(opts.limit ?? 50, 200))
+      .populate('actorUserId', 'name email')
+      .exec();
+  }
+
+  /** Platform admin view: every entry across every workspace, newest first — used
+   *  nowhere in the regular product, only the platform admin dashboard. */
+  async listAll(opts: { limit?: number; before?: Date } = {}): Promise<AuditLogDocument[]> {
+    const filter: Record<string, unknown> = {};
     if (opts.before) filter.createdAt = { $lt: opts.before };
     return this.model
       .find(filter)
