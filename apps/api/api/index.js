@@ -8,7 +8,7 @@
 const { createApp } = require('../dist/create-app.js');
 
 let handlerPromise;
-
+ 
 function getHandler() {
   if (!handlerPromise) {
     handlerPromise = createApp().then(async ({ app }) => {
