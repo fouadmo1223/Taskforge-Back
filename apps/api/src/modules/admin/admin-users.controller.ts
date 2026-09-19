@@ -4,9 +4,10 @@ import type { OffsetPage } from '@flowdesk/types';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { PlatformAdminGuard } from '../../common/guards/platform-admin.guard.js';
 import { ParseObjectIdPipe } from '../../common/pipes/parse-object-id.pipe.js';
+import { ApiException } from '../../common/http/api-exception.js';
 import { AuditService } from '../audit/audit.service.js';
 import { UsersService } from '../users/users.service.js';
-import { AdminListUsersQueryDto, BanUserDto } from './dto/admin.dto.js';
+import { AdminListUsersQueryDto, BanUserDto, SetPlatformAdminDto } from './dto/admin.dto.js';
 import { AdminUsersService, type AdminUserDetail, type AdminUserListItem } from './admin-users.service.js';
 
 @ApiTags('admin')
@@ -63,6 +64,28 @@ export class AdminUsersController {
   async unban(@Param('id', ParseObjectIdPipe) id: string, @CurrentUser('id') adminId: string): Promise<AdminUserDetail> {
     await this.users.setSuspended(id, false);
     this.audit.record({ workspaceId: null, actorUserId: adminId, action: 'user.unbanned', entityType: 'user', entityId: id });
+    return this.adminUsers.getById(id);
+  }
+
+  @Patch(':id/platform-admin')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Grant or revoke platform admin access — the only way to do this outside a direct database script' })
+  async setPlatformAdmin(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() dto: SetPlatformAdminDto,
+    @CurrentUser('id') adminId: string,
+  ): Promise<AdminUserDetail> {
+    if (id === adminId && !dto.isPlatformAdmin) {
+      throw ApiException.validation('You cannot revoke your own platform admin access.');
+    }
+    await this.users.setPlatformAdmin(id, dto.isPlatformAdmin);
+    this.audit.record({
+      workspaceId: null,
+      actorUserId: adminId,
+      action: dto.isPlatformAdmin ? 'user.platform_admin_granted' : 'user.platform_admin_revoked',
+      entityType: 'user',
+      entityId: id,
+    });
     return this.adminUsers.getById(id);
   }
 }

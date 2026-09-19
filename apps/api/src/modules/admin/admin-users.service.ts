@@ -73,6 +73,7 @@ export class AdminUsersService {
     if (query.verification === 'unverified') filter.emailVerified = false;
     if (query.status === 'active') filter.isSuspended = false;
     if (query.status === 'banned') filter.isSuspended = true;
+    if (query.platformAdmin) filter.isPlatformAdmin = true;
 
     const sortField = query.sort && ['name', 'email', 'createdAt', 'lastLoginAt'].includes(query.sort) ? query.sort : 'createdAt';
     const sort: Record<string, 1 | -1> = { [sortField]: query.order === 'asc' ? 1 : -1 };

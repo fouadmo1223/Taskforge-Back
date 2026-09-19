@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsMongoId, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsIn, IsMongoId, IsOptional, IsString, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { OffsetPageQueryDto } from '../../../common/dto/pagination.dto.js';
 
 export class AdminListUsersQueryDto extends OffsetPageQueryDto {
@@ -18,6 +19,12 @@ export class AdminListUsersQueryDto extends OffsetPageQueryDto {
   @IsOptional()
   @IsIn(['all', 'active', 'banned'])
   status?: 'all' | 'active' | 'banned';
+
+  @ApiPropertyOptional({ description: 'Only platform admins' })
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  platformAdmin?: boolean;
 }
 
 export class BanUserDto {
@@ -26,6 +33,11 @@ export class BanUserDto {
   @IsString()
   @MaxLength(500)
   reason?: string;
+}
+
+export class SetPlatformAdminDto {
+  @IsBoolean()
+  isPlatformAdmin!: boolean;
 }
 
 export class AdminListProjectsQueryDto extends OffsetPageQueryDto {
