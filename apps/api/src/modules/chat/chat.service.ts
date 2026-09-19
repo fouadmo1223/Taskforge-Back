@@ -22,6 +22,11 @@ export interface ConversationView {
   unreadCount: number;
 }
 
+export interface MessageReactionView {
+  emoji: string;
+  userIds: string[];
+}
+
 export interface ChatMessageView {
   id: string;
   conversationId: string;
@@ -31,11 +36,16 @@ export interface ChatMessageView {
   mentionUserIds: string[];
   edited: boolean;
   forwardedFromUserId: string | null;
+  reactions: MessageReactionView[];
   createdAt: string;
 }
 
 function preview(body: string): string {
   return body.replace(/\s+/g, ' ').trim().slice(0, 140);
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** Matches the client's own editable/deletable-for-everyone window. */
@@ -303,6 +313,59 @@ export class ChatService {
     this.realtime.emitToConversation(conversationId, 'chat.message_deleted', { messageId }, userId);
   }
 
+  /** Toggling the same emoji again removes it; a user may have several different emoji on one message. */
+  async toggleReaction(
+    workspaceId: string,
+    conversationId: string,
+    messageId: string,
+    userId: string,
+    emoji: string,
+  ): Promise<ChatMessageView> {
+    const convo = await this.getOrThrow(workspaceId, conversationId, userId);
+    const message = await this.messages.findOne({ _id: messageId, conversationId: new Types.ObjectId(conversationId), deletedAt: null }).exec();
+    if (!message) throw ApiException.notFound('Message');
+
+    const uid = new Types.ObjectId(userId);
+    const entry = message.reactions.find((r) => r.emoji === emoji);
+    if (entry?.userIds.some((id) => id.toString() === userId)) {
+      entry.userIds = entry.userIds.filter((id) => id.toString() !== userId);
+      if (entry.userIds.length === 0) message.reactions = message.reactions.filter((r) => r.emoji !== emoji);
+    } else if (entry) {
+      entry.userIds.push(uid);
+    } else {
+      message.reactions.push({ emoji, userIds: [uid] });
+    }
+    await message.save();
+
+    const view = this.messageView(message);
+    this.realtime.emitToConversation(convo.id, 'chat.message_updated', { message: view }, userId);
+    return view;
+  }
+
+  /** Case-insensitive text search across a conversation's (non-deleted, non-hidden-for-me) history. */
+  async searchMessages(
+    workspaceId: string,
+    conversationId: string,
+    userId: string,
+    query: string,
+    limit = 50,
+  ): Promise<ChatMessageView[]> {
+    await this.getOrThrow(workspaceId, conversationId, userId);
+    const q = query.trim();
+    if (!q) return [];
+    const rows = await this.messages
+      .find({
+        conversationId: new Types.ObjectId(conversationId),
+        deletedAt: null,
+        deletedForUserIds: { $ne: new Types.ObjectId(userId) },
+        body: { $regex: escapeRegExp(q), $options: 'i' },
+      })
+      .sort({ _id: -1 })
+      .limit(Math.min(limit, 100))
+      .exec();
+    return rows.map((r) => this.messageView(r));
+  }
+
   async forward(
     workspaceId: string,
     userId: string,
@@ -413,6 +476,7 @@ export class ChatService {
       mentionUserIds: m.mentionUserIds.map((id) => id.toString()),
       edited: m.editedAt !== null,
       forwardedFromUserId: m.forwardedFromUserId?.toString() ?? null,
+      reactions: m.reactions.map((r) => ({ emoji: r.emoji, userIds: r.userIds.map((id) => id.toString()) })),
       createdAt: m.createdAt.toISOString(),
     };
   }

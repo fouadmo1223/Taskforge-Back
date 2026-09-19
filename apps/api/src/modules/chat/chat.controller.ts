@@ -45,6 +45,9 @@ class MarkReadDto {
 class ForwardMessageDto {
   @IsArray() @ArrayNotEmpty() @IsMongoId({ each: true }) toConversationIds!: string[];
 }
+class ReactDto {
+  @IsString() @MinLength(1) @MaxLength(16) emoji!: string;
+}
 
 @ApiTags('chat')
 @ApiBearerAuth()
@@ -134,6 +137,17 @@ export class ChatController {
     return this.chat.listMessages(w, c, u, q);
   }
 
+  @Get(':conversationId/messages/search')
+  @ApiOperation({ summary: 'Search this conversation\'s message history by text' })
+  search(
+    @Param('workspaceId', ParseObjectIdPipe) w: string,
+    @Param('conversationId', ParseObjectIdPipe) c: string,
+    @CurrentUser('id') u: string,
+    @Query('q') q?: string,
+  ): Promise<ChatMessageView[]> {
+    return this.chat.searchMessages(w, c, u, q ?? '');
+  }
+
   @Post(':conversationId/messages')
   @ApiOperation({ summary: 'Send a message' })
   send(
@@ -203,6 +217,18 @@ export class ChatController {
     @Body() dto: ForwardMessageDto,
   ): Promise<ChatMessageView[]> {
     return this.chat.forward(w, u, c, m, dto.toConversationIds);
+  }
+
+  @Post(':conversationId/messages/:messageId/reactions')
+  @ApiOperation({ summary: 'React to a message with an emoji — reacting with the same emoji again removes it' })
+  react(
+    @Param('workspaceId', ParseObjectIdPipe) w: string,
+    @Param('conversationId', ParseObjectIdPipe) c: string,
+    @Param('messageId', ParseObjectIdPipe) m: string,
+    @CurrentUser('id') u: string,
+    @Body() dto: ReactDto,
+  ): Promise<ChatMessageView> {
+    return this.chat.toggleReaction(w, c, m, u, dto.emoji);
   }
 
   @Get(':conversationId/reads')

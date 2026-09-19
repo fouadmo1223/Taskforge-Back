@@ -5,6 +5,16 @@ import { CloudinaryAssetSchema } from '../../../common/db/cloudinary-asset.schem
 
 export type ChatMessageDocument = HydratedDocument<ChatMessage>;
 
+@Schema({ _id: false })
+export class MessageReaction {
+  @Prop({ required: true, maxlength: 16 })
+  emoji!: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
+  userIds!: Types.ObjectId[];
+}
+const MessageReactionSchema = SchemaFactory.createForClass(MessageReaction);
+
 @Schema({ timestamps: true, collection: 'chat_messages' })
 export class ChatMessage {
   @Prop({ type: Types.ObjectId, ref: 'Workspace', required: true, index: true })
@@ -39,6 +49,10 @@ export class ChatMessage {
   /** set when this message is a forward of another one */
   @Prop({ type: Types.ObjectId, ref: 'User', default: null })
   forwardedFromUserId!: Types.ObjectId | null;
+
+  /** one entry per distinct emoji used on this message, each listing who reacted with it */
+  @Prop({ type: [MessageReactionSchema], default: [] })
+  reactions!: MessageReaction[];
 
   createdAt!: Date;
   updatedAt!: Date;
