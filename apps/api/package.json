@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:e2e": "vitest run --config vitest.config.e2e.ts",
     "test:cov": "vitest run --coverage",
-    "seed": "tsx src/database/seed.ts"
+    "seed": "tsx src/database/seed.ts",
+    "bootstrap-admin": "tsx src/database/bootstrap-admin.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.11",

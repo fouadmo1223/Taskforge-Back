@@ -35,12 +35,32 @@ export class User {
   @Prop({ type: Date, default: null })
   lastLoginAt!: Date | null;
 
+  /** true = account banned by a platform admin, or self-suspended by security flow */
   @Prop({ default: false })
   isSuspended!: boolean;
 
   /** Bumped on "log out everywhere" / password change to invalidate all sessions. */
   @Prop({ default: 0 })
   tokenEpoch!: number;
+
+  /**
+   * Platform-wide superuser flag — distinct from any per-workspace role (including the
+   * 'admin' workspace role preset, which only grants permissions inside one workspace).
+   * Never settable from any user-facing endpoint; only flipped directly in the database
+   * to bootstrap the first admin, or by an existing platform admin via the admin API.
+   */
+  @Prop({ default: false })
+  isPlatformAdmin!: boolean;
+
+  @Prop({ type: Date, default: null })
+  bannedAt!: Date | null;
+
+  @Prop({ type: String, default: null })
+  banReason!: string | null;
+
+  /** Set when emailVerified is flipped by an admin rather than the user's own verify link. */
+  @Prop({ type: Date, default: null })
+  verifiedByAdminAt!: Date | null;
 
   createdAt!: Date;
   updatedAt!: Date;

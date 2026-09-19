@@ -16,6 +16,7 @@ import { CloudinaryModule } from './infra/cloudinary/cloudinary.module.js';
 import { AblyModule } from './realtime/ably.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { UsersModule } from './modules/users/users.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 import { RolesModule } from './modules/roles/roles.module.js';
 import { MembershipsModule } from './modules/memberships/memberships.module.js';
 import { TeamsModule } from './modules/teams/teams.module.js';
@@ -142,6 +143,9 @@ import { SharingModule } from './modules/sharing/sharing.module.js';
 
     // realtime chat
     ChatModule,
+
+    // platform-wide admin dashboard
+    AdminModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

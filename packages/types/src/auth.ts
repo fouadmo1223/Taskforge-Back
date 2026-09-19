@@ -10,6 +10,8 @@ export interface AuthUser {
   avatar: CloudinaryAsset | null;
   locale: Locale;
   theme: ThemePreference;
+  /** platform-wide superuser flag — distinct from any per-workspace role */
+  isPlatformAdmin: boolean;
   createdAt: string;
 }
 

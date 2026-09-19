@@ -133,7 +133,42 @@ export class UsersService {
       avatar: user.avatar,
       locale: user.locale,
       theme: user.theme,
+      isPlatformAdmin: user.isPlatformAdmin,
       createdAt: user.createdAt.toISOString(),
     };
+  }
+
+  // ── platform admin ──────────────────────────────────────────────────────
+
+  /** Bans (or lifts a ban on) a user account. Banning also force-invalidates every
+   *  existing session via tokenEpoch, the same mechanism "log out everywhere" uses. */
+  async setSuspended(id: string, suspended: boolean, reason: string | null = null): Promise<UserDocument> {
+    const user = await this.model.findById(id).exec();
+    if (!user) throw ApiException.notFound('User');
+    user.isSuspended = suspended;
+    user.bannedAt = suspended ? new Date() : null;
+    user.banReason = suspended ? reason : null;
+    if (suspended) user.tokenEpoch += 1;
+    await user.save();
+    return user;
+  }
+
+  /** Manually verifies an email that the user never confirmed via their own link. */
+  async adminVerifyEmail(id: string): Promise<UserDocument> {
+    const user = await this.model.findById(id).exec();
+    if (!user) throw ApiException.notFound('User');
+    if (!user.emailVerified) {
+      user.emailVerified = true;
+      user.verifiedByAdminAt = new Date();
+      await user.save();
+    }
+    return user;
+  }
+
+  /** Grants or revokes the platform-admin flag. Never exposed to non-admin callers. */
+  async setPlatformAdmin(id: string, isPlatformAdmin: boolean): Promise<UserDocument> {
+    const user = await this.model.findByIdAndUpdate(id, { $set: { isPlatformAdmin } }, { new: true }).exec();
+    if (!user) throw ApiException.notFound('User');
+    return user;
   }
 }
