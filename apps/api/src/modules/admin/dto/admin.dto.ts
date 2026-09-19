@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsMongoId, IsOptional, IsString, MaxLength } from 'class-validator';
 import { OffsetPageQueryDto } from '../../../common/dto/pagination.dto.js';
 
 export class AdminListUsersQueryDto extends OffsetPageQueryDto {
@@ -26,4 +26,35 @@ export class BanUserDto {
   @IsString()
   @MaxLength(500)
   reason?: string;
+}
+
+export class AdminListProjectsQueryDto extends OffsetPageQueryDto {
+  @ApiPropertyOptional({ description: 'Search by project name or key' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  search?: string;
+
+  @ApiPropertyOptional({ enum: ['planning', 'active', 'on_hold', 'completed', 'archived'] })
+  @IsOptional()
+  @IsIn(['planning', 'active', 'on_hold', 'completed', 'archived'])
+  status?: string;
+
+  @ApiPropertyOptional({ enum: ['workspace', 'team', 'private'] })
+  @IsOptional()
+  @IsIn(['workspace', 'team', 'private'])
+  visibility?: string;
+
+  @ApiPropertyOptional({ description: 'Filter to one workspace' })
+  @IsOptional()
+  @IsMongoId()
+  workspaceId?: string;
+}
+
+export class AdminListWorkspacesQueryDto extends OffsetPageQueryDto {
+  @ApiPropertyOptional({ description: 'Search by workspace name or slug' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  search?: string;
 }
