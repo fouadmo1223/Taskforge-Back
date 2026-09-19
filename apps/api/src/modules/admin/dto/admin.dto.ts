@@ -58,3 +58,26 @@ export class AdminListWorkspacesQueryDto extends OffsetPageQueryDto {
   @MaxLength(200)
   search?: string;
 }
+
+export class AdminListTasksQueryDto extends OffsetPageQueryDto {
+  @ApiPropertyOptional({ description: 'Search by task title or key' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  search?: string;
+
+  @ApiPropertyOptional({ enum: ['none', 'low', 'medium', 'high', 'urgent'] })
+  @IsOptional()
+  @IsIn(['none', 'low', 'medium', 'high', 'urgent'])
+  priority?: string;
+
+  @ApiPropertyOptional({ enum: ['all', 'completed', 'open'] })
+  @IsOptional()
+  @IsIn(['all', 'completed', 'open'])
+  completion?: 'all' | 'completed' | 'open';
+
+  @ApiPropertyOptional({ description: 'Filter to one project' })
+  @IsOptional()
+  @IsMongoId()
+  projectId?: string;
+}
